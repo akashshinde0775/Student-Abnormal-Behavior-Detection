@@ -1,0 +1,21 @@
+path: ../datasets/roboflow
+
+train: train/images
+val: valid/images
+test: test/images
+
+names: 
+  0: Looking_front
+  1: Looking_up
+  2: Mobile
+  3: Passing_cheat
+  4: backword
+  5: c
+  6: five
+  7: four
+  8: head
+  9: head_down
+  10: looking_left
+  11: looking_right
+  12: three
+  13: two

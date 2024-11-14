@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Abnormal Behavior Detection</title>
+    <style>
+        /* Styles as before */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 2rem auto;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .sections {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .video-section,
+        .details-section,
+        .captured-section {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-section img,
+        .captured-section img {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .details-section h2,
+        .captured-section h2 {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .detection-list {
+            list-style: none;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .detection-item {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+
+        .detection-item p {
+            margin: 0.2rem 0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Student Abnormal Behavior Detection</h1>
+
+        <div class="sections">
+            <!-- Live Video Feed Section -->
+            <div class="video-section">
+                <h2>Live Video Feed</h2>
+                <img src="/video_feed" alt="Live video feed">
+            </div>
+
+            <!-- Detected Frames Section -->
+            <div class="details-section">
+                <h2>Detected Activity Details</h2>
+                <ul class="detection-list" id="detectionList">
+                    <!-- Detected items will be appended here -->
+                </ul>
+            </div>
+
+            <!-- Captured Suspicious Frame Section -->
+            <div class="captured-section">
+                <h2>Captured Suspicious Image</h2>
+                <img id="capturedImage" src="" alt="Suspicious Image" style="display: none;">
+                <p id="noImageText">No suspicious image captured yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const socket = io(); // Initialize Socket.IO
+        const detectionList = document.getElementById('detectionList');
+        const capturedImage = document.getElementById('capturedImage');
+        const noImageText = document.getElementById('noImageText');
+
+        // Function to create a new detection item in the list
+        function addDetectionItem(data) {
+            const item = document.createElement('li');
+            item.className = 'detection-item';
+            item.innerHTML = `
+                <p><strong>Activity:</strong> ${data.activity}</p>
+                <p><strong>Confidence:</strong> ${(data.confidence * 100).toFixed(1)}%</p>
+                <p><strong>Coordinates:</strong> (${data.coordinates[0]}, ${data.coordinates[1]}) to (${data.coordinates[2]}, ${data.coordinates[3]})</p>
+                <p><strong>Time:</strong> ${data.timestamp}</p>
+            `;
+
+            detectionList.insertBefore(item, detectionList.firstChild);
+
+            // Keep only the last 10 detections
+            if (detectionList.children.length > 10) {
+                detectionList.removeChild(detectionList.lastChild);
+            }
+        }
+
+        // Listen for detection alerts via Socket.IO
+        socket.on('alert', (data) => {
+            addDetectionItem(data);
+
+            // Update the captured image with the suspicious frame
+            capturedImage.src = `data:image/jpeg;base64,${data.image}`;  // Set the base64 image
+            capturedImage.style.display = 'block';
+            noImageText.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
