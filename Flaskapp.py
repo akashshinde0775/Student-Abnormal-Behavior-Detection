@@ -96,7 +96,7 @@ def video_feed():
 
 @app.route('/')
 def index():
-    return render_template('index2.html')
+    return render_template('index4.html')
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)
